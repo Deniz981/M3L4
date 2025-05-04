@@ -1,71 +1,50 @@
-# İçeri Aktarma
-from flask import Flask, render_template,request, redirect
-# Veritabanı kütüphanesini içe aktarma
-from flask_sqlalchemy import SQLAlchemy
+# İçeri Aktar
+from flask import Flask, render_template, request, send_from_directory
 
 
 app = Flask(__name__)
-# SQLite ile bağlantı kurma 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diary.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# DB oluşturma
-db = SQLAlchemy(app )
 
-#Görev #1. DB tablosu oluşturma
-
-
-
-
-
-
-
-
-
-
-
-# İçerik sayfasını çalıştırma
-@app.route('/')
+# Form sonuçları 
+@app.route('/', methods=['GET','POST'])
 def index():
-    # DB nesnelerini görüntüleme
-    # Görev #2. DB'deki nesneleri index.html'de görüntüleme
-    
-
-    return render_template('index.html',
-                           #kartlar = kartlar
-
-                           )
-
-# Kartla sayfayı çalıştırma
-@app.route('/card/<int:id>')
-def card(id):
-    # Görev #2. Id'ye göre doğru kartı görüntüleme
-    
-
-    return render_template('card.html', card=card)
-
-# Sayfayı çalıştırma ve kart oluşturma
-@app.route('/create')
-def create():
-    return render_template('create_card.html')
-
-# Kart formu
-@app.route('/form_create', methods=['GET','POST'])
-def form_create():
     if request.method == 'POST':
-        title =  request.form['title']
-        subtitle =  request.form['subtitle']
-        text =  request.form['text']
+        # seçilen resmi almak
+        selected_image = request.form.get('image-selector')
 
-        # Görev #2. Verileri DB'de depolamak için bir yol oluşturma
-        
+        # Görev #2. Metni almak
+        text_top = request.form.get('textTop')
+        text_bottom = request.form.get('textBottom')
+        # Görev #3. Metnin konumunu almak
+        text_top_y = request.form.get('textTop_y')
+        text_bottom_y = request.form.get('textBottom_y')
 
 
+        # Görev #3. Metnin rengini almak
+        selected_color = request.form.get('color-selector')
 
+        return render_template('index.html', 
+                               # Seçilen resmi görüntüleme
+                               selected_image=selected_image, 
 
-        return redirect('/')
+                               # Görev #2. Metni görüntüleme
+                               text_top = text_top,
+                                text_bottom = text_bottom,
+
+                               # Görev #3. Rengi görüntüleme
+                               selected_color = selected_color,
+                               
+                               # Görev #3. Metnin konumunu görüntüleme
+                                text_top_y = text_top_y,
+                                 text_bottom_y = text_bottom_y 
+                               )
     else:
-        return render_template('create_card.html')
+        # Varsayılan olarak ilk resmi görüntüleme
+        return render_template('index.html', selected_image='logo.svg')
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/static/img/<path:path>')
+def serve_images(path):
+    return send_from_directory('static/img', path)
+
+app.run(debug=True)
+
